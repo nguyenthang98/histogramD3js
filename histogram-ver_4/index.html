@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Demo</title>
+</head>
+<body>
+	<button onclick="genRandomBars()">Update Bars</button>
+	<button onclick="genRandomDataset()">Update Dataset</button>
+	<button onclick="histogram.showBarChart()">Show Bar Chart</button>
+	<button onclick="histogram.showLineChart()">Show Line Chart</button>
+	<hr>
+	<form id="form-data">
+		<label for="min">Min Value: </label>
+		<input id="min" type="number" required>
+		<label for="max">Max Value: </label>
+		<input id="max" type="number" required>
+		<label for="length">Elements: </label>
+		<input id="length" type="number" required>
+		<button type="submit">Update</button>
+	</form>
+	<hr>
+
+	<label for="bars">Number of bars: </label>
+	<input type="number" id="bars" required>
+	<hr>
+
+	<form id="form-target">
+		<label for="target">Target to count: </label>
+		<input type="text" id="target" required>
+		<button type="submit">Update!</button>
+	</form>
+	<hr>
+	<form id="form-condition">
+		<label for="condition">Condition: </label>
+		<input type="text" id="condition">
+		<button type="submit">Update!</button>
+	</form>
+
+	<script src="../d3.min.js"></script>
+	<script src="histogram.js"></script>
+	<script>
+		function genRandomData(start,stop,length){
+		return d3.range(length)
+					.map(function(d,i){ 
+						var random = Math.floor(Math.random()*(stop-start)+start);
+						return {x: random, y: Math.round(random * Math.random())}; 
+					});
+		};
+		var histograms = [];
+		histograms.push(new Histogram( genRandomData(0,1000,1000), {min: 0, max: 1000, numOfBars: 10, target: "x"}));
+		histograms.push(new Histogram( genRandomData(500,10000,2000), {min: 0, max: 1000, numOfBars: 20, target: "y"}));
+
+		function genRandomBars(){
+			var bars = Math.round(Math.random()*299 + 1);  
+			histograms.forEach(function(histogram){
+				histogram.updateNumOfBars(bars);
+				histogram.updateDraw();
+			})
+		};
+
+		function genRandomDataset(){
+			histograms.forEach(function(histogram){
+				var start = Math.round(Math.random() * 100);
+				var stop = Math.round(Math.random() * 500 + 1000);
+				var length = Math.round(Math.random() * 900 + 100);
+				histogram.updateDataset(genRandomData(start, stop, length), start, stop);
+				histogram.updateDraw();
+			});
+		};
+
+		d3.select('#form-data').on('submit', function(){
+			d3.event.preventDefault();
+				histograms.forEach(function(histogram){
+				var min = parseInt(d3.select('#min').node().value,10);
+				var max = parseInt(d3.select('#max').node().value,10);
+				var length = parseInt(d3.select('#length').node().value,10);
+				dataset = genRandomData(min, max, length); 
+				histogram.updateDataset(dataset, min, max);
+				histogram.updateDraw();
+			});
+		});
+
+		d3.select('#bars').on('input',function(){
+			var bars = parseInt(d3.select(this).node().value,10);
+			histograms.forEach(function(histogram){
+				histogram.updateNumOfBars(bars);
+				histogram.updateDraw();
+			});
+		});
+
+		d3.select('#form-target').on('submit',updateTarget);
+		function updateTarget(){
+			d3.event.preventDefault();
+			var target = d3.select('#target').node().value;
+			histograms.forEach(function(histogram){
+				histogram.updateCountTarget(target);
+				histogram.updateDraw();
+			});
+		};
+
+		d3.select('#form-condition').on('submit',updateCondition);
+		function updateCondition(){
+			d3.event.preventDefault();
+			var condition = d3.select('#condition').node().value;
+			histograms.forEach(function(histogram){
+				histogram.updateCondition(condition);
+				histogram.updateDraw();
+			});
+		};
+
+	</script>
+</body>
+</html>

@@ -145,7 +145,7 @@ var ID = function () {
 		});
 	};
 	Histogram.prototype.updateDraw = function(){
-		d3.select('svg#' + this.id)
+		d3.selectAll('svg#' + this.id)
 			.data([this])
 			.each(function(histogram){
 				var thisSVG = d3.select(this);
